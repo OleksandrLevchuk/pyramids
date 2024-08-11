@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3 uid="uid://d0motxjmw86s2"]
+
+[sub_resource type="GDScript" id="GDScript_hdpku"]
+script/source = "extends Node
+var MAX_INT := 9223372036854775807
+var permutations_found := 0
+var view_base := 10
+
+func _ready():
+	for base in range(2,99):
+		view_base = base
+		prints(\"========== PYRAMID BASE\",base,\"viewed in base\",view_base,\"============\")
+		await get_tree().create_timer(0.01).timeout
+		print(\"0 - 1\")
+		var pyramid := [[1]]
+		for row_num in range(1,99):
+			var num := base**row_num
+			if num<0:break
+			var row := [num]
+			var row_str := str( row_num ) + \" - \"
+			row_str += String.num_uint64(num, view_base ) + \", \"
+			for column in range(1,row_num+1):
+				var color_tag := \"\"
+				var color_tag_end := \"\"
+				if pyramid[row_num-1].size()<column: break
+				var new_num = num + pyramid[row_num-1][column-1]
+				if new_num<0: break
+				if are_permutations(num, new_num, view_base):
+					color_tag = \"[color=red]\"
+					color_tag_end = \"[/color]\"
+					permutations_found += 1
+				row.push_back(new_num)
+				row_str += color_tag + String.num_uint64( new_num, view_base ) + color_tag_end + \", \"
+				num = new_num
+			print_rich( row_str )
+			pyramid.push_back(row)
+
+	prints(\"permutations found:\", permutations_found)
+	await get_tree().create_timer(1.0).timeout
+	get_tree().quit()
+
+
+func are_permutations( a: int, b: int, base:=10 ):
+	var arr_a := String.num_uint64( a, base ).lpad(10,\"0\").split('')
+	arr_a.sort()
+	var arr_b := String.num_uint64( b, base ).lpad(10,\"0\").split('')
+	arr_b.sort()
+	return arr_a == arr_b
+"
+
+[node name="Main" type="Node"]
+script = SubResource("GDScript_hdpku")

@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3 uid="uid://d0motxjmw86s2"]
+
+[sub_resource type="GDScript" id="GDScript_hdpku"]
+script/source = "extends Node
+var pyramid := [[1]]
+var BASE := 5
+var MAX_INT := 9223372036854775807
+
+func _ready():
+	print(\"1 - 1\")
+	for row_num in range(1,19): # 31 for base 4, 39 for base 3, 62 for base 2
+		var num := BASE**row_num
+		var row := [num]
+		var row_str := str( row_num+1 ) + \" - \" + str( num ) + \", \"
+		for column in range(1,row_num+1):
+			var color_tag := \"\"
+			var color_tag_end := \"\"
+			var new_num = num + pyramid[row_num-1][column-1]
+			if are_permutations(num, new_num):
+				color_tag = \"[color=red]\"
+				color_tag_end = \"[/color]\"
+			row.push_back(new_num)
+			row_str += color_tag + str( new_num ) + color_tag_end + \", \"
+			num = new_num
+		print_rich( row_str )
+		pyramid.push_back(row)
+
+
+func are_permutations( a: int, b: int ):
+	var arr_a := str( a ).split('')
+	arr_a.sort()
+	var arr_b := str( b ).split('')
+	arr_b.sort()
+	return arr_a == arr_b
+"
+
+[node name="Main" type="Node"]
+script = SubResource("GDScript_hdpku")
